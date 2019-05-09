@@ -1,0 +1,25 @@
+# Dependencies
+/node_modules
+
+# IDEs and editors
+/.idea
+.project
+.vscode/*
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# System Files
+.DS_Store
+Thumbs.db
+
+# Compiled output
+/public
+
+# Design Files
+/design
+*.ai
+*.pdf
+*.psd
