@@ -1,6 +1,7 @@
 'use strict'
 const gulp = require('gulp');
 const del = require('del');
+const tinypng = require('gulp-tinypng');
 const ttf2woff = require('gulp-ttf2woff');
 const ttf2woff2 = require('gulp-ttf2woff2');
 const rename = require('gulp-rename');
@@ -55,6 +56,7 @@ gulp.task('clean', function () {
 
 gulp.task('asset:img', function () {
   return gulp.src(path.src.img)
+    .pipe(gulpIf(isProduction, tinypng('API Key'))) // https://tinypng.com/dashboard/api
     .pipe(rename({
       dirname: path.out.img
     }))
