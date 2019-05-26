@@ -19,7 +19,7 @@
 gulp-scss-starter
 ├── public
 │   ├── img
-│   ├── fonts
+│   └── fonts
 ├── src
 │   ├── fonts
 │   ├── img

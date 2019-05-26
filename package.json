@@ -1,21 +1,23 @@
 {
-	"name": "gulp-scss",
-	"version": "0.8.0",
-	"main": "gulpfile.js",
-	"author": "sladkoewk",
-	"license": "MIT",
-	"devDependencies": {
-		"browser-sync": "^2.26.5",
-		"del": "^4.1.1",
-		"gulp": "^4.0.2",
-		"gulp-autoprefixer": "^6.1.0",
-		"gulp-clean-css": "^4.2.0",
-		"gulp-concat": "^2.6.1",
-		"gulp-if": "^2.0.2",
-		"gulp-notify": "^3.2.0",
-		"gulp-plumber": "^1.2.1",
-		"gulp-rename": "^1.4.0",
-		"gulp-sass": "^4.0.2",
-		"gulp-sourcemaps": "^2.6.5"
-	}
+  "name": "gulp-scss",
+  "version": "0.8.0",
+  "main": "gulpfile.js",
+  "author": "sladkoewk",
+  "license": "MIT",
+  "devDependencies": {
+    "browser-sync": "^2.26.5",
+    "del": "^4.1.1",
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^6.1.0",
+    "gulp-clean-css": "^4.2.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-if": "^2.0.2",
+    "gulp-notify": "^3.2.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-rename": "^1.4.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-ttf2woff": "^1.1.1",
+    "gulp-ttf2woff2": "^2.0.2"
+  }
 }
