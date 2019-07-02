@@ -162,20 +162,6 @@ function webpack(callback) {
     });
 }
 
-function watch() {
-  gulp.watch(path.src.img, gulp.series(assetImg));
-  gulp.watch(path.src.font, gulp.series(assetFont));
-  gulp.watch(path.src.html, gulp.series(assetHtml));
-  gulp.watch(path.watch.style, gulp.series(styles));
-}
-
-function serve() {
-  browserSync.init({
-    server: path.out.root,
-  });
-  browserSync.watch(path.out.root).on('change', browserSync.reload);
-}
-
 function favicon(callback) {
   realFavicon.generateFavicon({
     masterPicture: path.src.favicon,
@@ -243,6 +229,20 @@ function injectFavicon() {
     .pipe(gulp.dest(path.out.html));
 }
 
+function watch() {
+  gulp.watch(path.src.img, gulp.series(assetImg));
+  gulp.watch(path.src.font, gulp.series(assetFont));
+  gulp.watch(path.src.html, gulp.series(assetHtml, injectFavicon));
+  gulp.watch(path.watch.style, gulp.series(styles));
+}
+
+function serve() {
+  browserSync.init({
+    server: path.out.root,
+  });
+  browserSync.watch(path.out.root).on('change', browserSync.reload);
+}
+
 exports.clean = clean;
 exports.assetImg = assetImg;
 exports.assetFont = assetFont;
@@ -260,6 +260,9 @@ exports.build = build;
 exports.watch = watch;
 exports.serve = serve;
 
-exports.default = gulp.series(build, gulp.parallel(watch, serve));
+const faviconSetup = gulp.series(favicon, injectFavicon);
+exports.faviconSetup = faviconSetup;
 
-exports.production = gulp.series(clean, build, favicon, injectFavicon, serve);
+exports.default = gulp.series(build, faviconSetup, gulp.parallel(watch, serve));
+
+exports.production = gulp.series(clean, build, faviconSetup, serve);
