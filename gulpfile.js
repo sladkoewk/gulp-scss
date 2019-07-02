@@ -1,6 +1,7 @@
 const gulp = require('gulp');
 const del = require('del');
 const rename = require('gulp-rename');
+const tinypng = require('gulp-tinypng');
 const sass = require('gulp-sass');
 const concat = require('gulp-concat');
 const autoprefixer = require('gulp-autoprefixer');
@@ -14,6 +15,8 @@ const browserSync = require('browser-sync');
 const webpackStream = require('webpack-stream');
 const named = require('vinyl-named');
 const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const realFavicon = require('gulp-real-favicon');
+const fs = require('fs');
 
 const status = process.env.STATUS || 'development';
 const isDevelopment = status === 'development';
@@ -22,6 +25,7 @@ const isProduction = status === 'production';
 const path = {
   src: {
     base: 'src/',
+    favicon: 'src/favicon.png',
     img: 'src/img/**/*.*',
     font: 'src/fonts/**/*.*',
     html: ['src/index.html', 'src/pages/**/*.html'],
@@ -46,9 +50,9 @@ const path = {
 const config = {
   outputCssMinName: 'bundle.min.css',
   outputCssName: 'bundle.css',
-  outputJsMinName: 'bundle.min.js',
-  outputJsName: 'bundle.js',
 };
+
+const FAVICON = 'faviconData.json';
 
 function clean() {
   return del(path.out.root);
@@ -56,6 +60,7 @@ function clean() {
 
 function assetImg() {
   return gulp.src(path.src.img)
+    .pipe(gulpIf(isProduction, tinypng('API Key'))) // https://tinypng.com/dashboard/api
     .pipe(rename({ dirname: path.out.img }))
     .pipe(gulp.dest('.'));
 }
@@ -68,7 +73,8 @@ function assetFont() {
 
 function assetHtml() {
   return gulp.src(path.src.html, { base: path.src.base })
-    .pipe(gulp.dest(path.out.html));
+    .pipe(rename({ dirname: path.out.html }))
+    .pipe(gulp.dest('.'));
 }
 
 function styles() {
@@ -85,9 +91,7 @@ function styles() {
     .pipe(gulpIf(isDevelopment, sourcemaps.init()))
     .pipe(sass())
     .pipe(gulpIf(isDevelopment, concat(config.outputCssName), concat(config.outputCssMinName)))
-    .pipe(autoprefixer({
-      browsers: ['last 3 versions'],
-    }))
+    .pipe(autoprefixer())
     .pipe(gulpIf(isProduction, cleanCSS({ compatibility: 'ie8' })))
     .pipe(gulpIf(isDevelopment, sourcemaps.write()))
     .pipe(gulp.dest(path.out.css))
@@ -172,6 +176,73 @@ function serve() {
   browserSync.watch(path.out.root).on('change', browserSync.reload);
 }
 
+function favicon(callback) {
+  realFavicon.generateFavicon({
+    masterPicture: path.src.favicon,
+    dest: path.out.root,
+    iconsPath: '/',
+    design: {
+      ios: {
+        pictureAspect: 'backgroundAndMargin',
+        backgroundColor: '#ffffff',
+        margin: '14%',
+        assets: {
+          ios6AndPriorIcons: false,
+          ios7AndLaterIcons: false,
+          precomposedIcons: false,
+          declareOnlyDefaultIcon: true,
+        },
+      },
+      desktopBrowser: {},
+      windows: {
+        pictureAspect: 'noChange',
+        backgroundColor: '#ffffff',
+        onConflict: 'override',
+        assets: {
+          windows80Ie10Tile: false,
+          windows10Ie11EdgeTiles: {
+            small: false,
+            medium: true,
+            big: false,
+            rectangle: false,
+          },
+        },
+      },
+      androidChrome: {
+        pictureAspect: 'noChange',
+        themeColor: '#ffffff',
+        manifest: {
+          display: 'standalone',
+          orientation: 'notSet',
+          onConflict: 'override',
+          declared: true,
+        },
+        assets: {
+          legacyIcon: false,
+          lowResolutionIcons: false,
+        },
+      },
+      safariPinnedTab: {
+        pictureAspect: 'silhouette',
+        themeColor: '#5bbad5',
+      },
+    },
+    settings: {
+      scalingAlgorithm: 'Mitchell',
+      errorOnImageTooSmall: false,
+    },
+    markupFile: FAVICON,
+  }, () => {
+    callback();
+  });
+}
+
+function injectFavicon() {
+  return gulp.src(path.src.html)
+    .pipe(realFavicon.injectFaviconMarkups(JSON.parse(fs.readFileSync(FAVICON)).favicon.html_code))
+    .pipe(gulp.dest(path.out.html));
+}
+
 exports.clean = clean;
 exports.assetImg = assetImg;
 exports.assetFont = assetFont;
@@ -190,3 +261,5 @@ exports.watch = watch;
 exports.serve = serve;
 
 exports.default = gulp.series(build, gulp.parallel(watch, serve));
+
+exports.production = gulp.series(clean, build, favicon, injectFavicon, serve);
